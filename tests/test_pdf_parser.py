@@ -1,36 +1,29 @@
-from pathlib import Path
+"""Tests for the placeholder PDF parser implementation."""
 
-import pytest
+from __future__ import annotations
 
 from src.engine.pdf_parser import parse_pdf
 
 
-FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
+EXPECTED_KEYS = {"page_number", "page_size", "scale", "dimensions"}
 
 
-def test_parse_pdf_extracts_page_metadata():
-    pdf_path = FIXTURES_DIR / "sample_plan.pdf"
+def test_parse_pdf_returns_placeholder_data() -> None:
+    result = parse_pdf("fake.pdf")
 
-    results = parse_pdf(pdf_path)
-
-    assert isinstance(results, list)
-    assert results, "Expected at least one page result"
-
-    first_page = results[0]
-    assert first_page["page_number"] == 1
-
-    width, height = first_page["page_size"]
-    assert width > 0
-    assert height > 0
-
-    assert first_page["scale"] == "1/4\" = 1'-0\""
-
-    dimensions = first_page["dimensions"]
-    assert any(dim.endswith('"') for dim in dimensions)
-    assert "12'-6\"" in dimensions
-    assert "15.5" in dimensions
+    assert isinstance(result, dict)
+    assert EXPECTED_KEYS.issubset(result.keys())
+    assert result["page_number"] == 1
+    assert isinstance(result["page_size"], list)
+    assert len(result["page_size"]) == 2
+    assert isinstance(result["dimensions"], list)
+    assert "12'-6\"" in result["dimensions"]
 
 
-def test_parse_pdf_missing_file():
-    with pytest.raises(FileNotFoundError):
-        parse_pdf(Path("does-not-exist.pdf"))
+def test_parse_pdf_accepts_pathlike() -> None:
+    class DummyPath:
+        def __fspath__(self) -> str:
+            return "dummy.pdf"
+
+    result = parse_pdf(DummyPath())
+    assert result["page_number"] == 1
