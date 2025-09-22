@@ -94,7 +94,9 @@ class MainWindow(QWidget):
         pixmap = QPixmap.fromImage(image)
         self._scene.clear()
         self._scene.addPixmap(pixmap)
-        self._scene.setSceneRect(pixmap.rect())
+        
+        from PyQt5.QtCore import QRectF
+self._scene.setSceneRect(QRectF(pixmap.rect()))
 
         try:
             room_estimates = detect_rooms(array)
