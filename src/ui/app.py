@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap
 from PyQt5.QtWidgets import (
     QApplication,
@@ -95,8 +95,7 @@ class MainWindow(QWidget):
         self._scene.clear()
         self._scene.addPixmap(pixmap)
         
-        from PyQt5.QtCore import QRectF
-self._scene.setSceneRect(QRectF(pixmap.rect()))
+        self._scene.setSceneRect(QRectF(pixmap.rect()))
 
         try:
             room_estimates = detect_rooms(array)
